@@ -39,6 +39,7 @@ _onInitError = dummy
 _onInitFinish = dummy
 _token = '' 
 _referer = "http://grooveshark.com/JSQueue.swf?20111111.111"
+_player = None
 
 def getToken():
     """
@@ -218,31 +219,45 @@ def getStreamKeyFromSongIDEx(_id):
 
     return j
 
-def play_uri(uri):
-    mainloop = gobject.MainLoop()
-    player = gst.element_factory_make("playbin", "player")
+#def play_uri(uri):
+def set_player():
+    global _player
+
+    #mainloop = gobject.MainLoop()
+    _player = gst.element_factory_make("playbin", "player")
   
-    print 'Playing:', uri
-    player.set_property('uri', uri)
-    player.set_state(gst.STATE_PLAYING)
+    #print 'Playing:', uri
+    #_player.set_property('uri', uri)
+    #_player.set_state(gst.STATE_PLAYING)
 
-    mainloop.run()
+    #mainloop.run()
 
-srch = raw_input('Patron de busqueda: ')
-lista = getSearchResultsEx(srch)
-lista.reverse()
-i = len(lista) 
-for row in lista:
-	print "%s- %s" % (i, row['SongName'])
-	i -= 1
+def play_uri(uri):
+    global _player
 
-lista.reverse()
-sel = raw_input('Seleccione un numero: ')
-id = str(lista[int(sel)-1]['SongID'])
-print str(lista[int(sel)-1]['SongName'])
-key = getStreamKeyFromSongIDEx(id)
-playurls = "http://%s/stream.php?streamKey=%s"
-play_url = playurls % (key["result"][id]["ip"],
-                       key["result"][id]["streamKey"])
+    _player.set_state(gst.STATE_NULL)
+    _player.set_property('uri', uri)
+    _player.set_state(gst.STATE_PLAYING)
 
-play_uri(play_url)
+t = threading.Thread(target=set_player)
+t.start()
+
+while True:
+    srch = raw_input('Patron de busqueda: ')
+    lista = getSearchResultsEx(srch)
+    lista.reverse()
+    i = len(lista) 
+    for row in lista:
+    	print "%s- %s" % (i, row['SongName'])
+    	i -= 1
+    
+    lista.reverse()
+    sel = raw_input('Seleccione un numero: ')
+    id = str(lista[int(sel)-1]['SongID'])
+    print str(lista[int(sel)-1]['SongName'])
+    key = getStreamKeyFromSongIDEx(id)
+    playurls = "http://%s/stream.php?streamKey=%s"
+    play_url = playurls % (key["result"][id]["ip"],
+                           key["result"][id]["streamKey"])
+    
+    play_uri(play_url)
