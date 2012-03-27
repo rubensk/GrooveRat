@@ -242,17 +242,26 @@ def play_uri(uri):
 t = threading.Thread(target=set_player)
 t.start()
 
+lista = []
+
 while True:
     srch = raw_input('Patron de busqueda: ')
-    lista = getSearchResultsEx(srch)
-    lista.reverse()
+    if srch == "":
+        if len(lista) == 0:
+	    continue
+    else:
+        lista = getSearchResultsEx(srch)
+        lista.reverse()
+
     i = len(lista) 
     for row in lista:
-    	print "%s- %s" % (i, row['SongName'])
+    	print "%s- %s - %s" % (i, row['ArtistName'], row['SongName'])
     	i -= 1
     
     lista.reverse()
     sel = raw_input('Seleccione un numero: ')
+    if sel == "":
+        continue
     id = str(lista[int(sel)-1]['SongID'])
     print str(lista[int(sel)-1]['SongName'])
     key = getStreamKeyFromSongIDEx(id)
