@@ -260,7 +260,7 @@ while True:
     
     lista.reverse()
     sel = raw_input('Seleccione un numero: ')
-    if sel == "":
+    if sel == "" or not str(sel).isdigit():
         continue
     id = str(lista[int(sel)-1]['SongID'])
     print str(lista[int(sel)-1]['SongName'])
